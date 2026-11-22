@@ -4,7 +4,7 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-airbooking-production-ready-secret-key-yuai-takehome'
+SECRET_KEY = 'REDACTED_SECRET_KEY'
 
 DEBUG = True
 

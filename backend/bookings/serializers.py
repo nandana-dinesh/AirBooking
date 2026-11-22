@@ -12,6 +12,7 @@ class BookingCreateSerializer(serializers.ModelSerializer):
     card_number = serializers.CharField(write_only=True, required=False, allow_blank=True)
     card_expiry = serializers.CharField(write_only=True, required=False, allow_blank=True)
     card_cvv = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    payment_method = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
         model = Booking

@@ -9,7 +9,6 @@ import {
   Plus,
   RefreshCw,
   Search,
-  DollarSign,
   TrendingUp,
   MapPin,
   Calendar,
