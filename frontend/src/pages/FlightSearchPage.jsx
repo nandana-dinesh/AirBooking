@@ -74,14 +74,16 @@ export const FlightSearchPage = () => {
   const [bookingError, setBookingError] = useState('');
   const [isBookingSubmitting, setIsBookingSubmitting] = useState(false);
 
-  // Popular Indian quick route chips with realistic distance-based pricing
+  // Popular Indian quick route chips — fares match seed data
   const quickRoutes = [
-    { from: 'DEL', to: 'BOM', label: 'Delhi ⇄ Mumbai', price: '₹7,950', dist: '1,148 km' },
-    { from: 'BLR', to: 'GOI', label: 'Bengaluru ⇄ Goa', price: '₹4,890', dist: '480 km' },
-    { from: 'BOM', to: 'BLR', label: 'Mumbai ⇄ Bengaluru', price: '₹6,750', dist: '840 km' },
-    { from: 'DEL', to: 'GOI', label: 'Delhi ⇄ Goa', price: '₹10,850', dist: '1,515 km' },
-    { from: 'BOM', to: 'COK', label: 'Mumbai ⇄ Kochi', price: '₹7,650', dist: '1,070 km' },
-    { from: 'BOM', to: 'DXB', label: 'Mumbai ⇄ Dubai', price: '₹38,500', dist: '1,930 km' },
+    { from: 'DEL', to: 'BOM', label: 'Delhi → Mumbai',      price: 'from ₹7,599',  dist: '1,148 km' },
+    { from: 'BOM', to: 'BLR', label: 'Mumbai → Bengaluru',  price: 'from ₹6,499',  dist: '840 km'   },
+    { from: 'BLR', to: 'GOI', label: 'Bengaluru → Goa',     price: 'from ₹4,499',  dist: '480 km'   },
+    { from: 'DEL', to: 'GOI', label: 'Delhi → Goa',         price: 'from ₹10,850', dist: '1,515 km' },
+    { from: 'BOM', to: 'COK', label: 'Mumbai → Kochi',      price: 'from ₹7,399',  dist: '1,070 km' },
+    { from: 'DEL', to: 'BLR', label: 'Delhi → Bengaluru',   price: 'from ₹10,999', dist: '1,740 km' },
+    { from: 'BOM', to: 'DXB', label: 'Mumbai → Dubai',      price: 'from ₹32,500', dist: '1,930 km' },
+    { from: 'DEL', to: 'SIN', label: 'Delhi → Singapore',   price: 'from ₹46,800', dist: '4,150 km' },
   ];
 
   // Fetch flights
