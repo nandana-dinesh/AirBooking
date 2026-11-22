@@ -45,6 +45,7 @@ class Flight(models.Model):
     delay_minutes = models.PositiveIntegerField(default=0)
 
     # Humanized airline & passenger service details
+    distance_km = models.PositiveIntegerField(default=1000, help_text='Distance between origin and destination in km')
     baggage_info = models.CharField(max_length=100, default='15 kg Check-in • 7 kg Cabin')
     meal_info = models.CharField(max_length=100, default='Complimentary Hot Meal')
     refundable = models.BooleanField(default=True)
@@ -53,6 +54,12 @@ class Flight(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.distance_km or self.distance_km <= 100:
+            from .services.flight_tracker import calculate_distance_between_codes
+            self.distance_km = calculate_distance_between_codes(self.origin_code, self.destination_code)
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['departure_time']

@@ -1,18 +1,75 @@
-# Python & Django
+# ============================================================
+# AirBooking India – .gitignore
+# ============================================================
+
+# ── Python / Django ─────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
-*.sqlite3
-*.log
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+*.manifest
+*.spec
+
+# Virtual environments
 venv/
 env/
-.env
+.venv/
+.env/
 
-# Node & Frontend
+# Django secrets & local config
+*.env
+.env.local
+.env.production
+backend/config/local_settings.py
+
+# SQLite database (don't commit DB, schema lives in migrations)
+*.sqlite3
+*.db
+
+# Django collected static
+backend/staticfiles/
+backend/static/
+
+# Logs
+*.log
+django_debug.log
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# ── Node / Frontend ──────────────────────────────────────────
 node_modules/
-dist/
-.DS_Store
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.env.production
 
-# IDEs
+# Vite cache
+frontend/.vite/
+
+# ── OS / Editor ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
 .vscode/
 .idea/
+*.iml
+
+# ── Testing / Coverage ───────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/
+coverage.xml
+*.cover
+
+# ── Misc ─────────────────────────────────────────────────────
+*.bak
+*.tmp

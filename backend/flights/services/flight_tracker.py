@@ -30,6 +30,21 @@ def get_airport_coords(code):
         {'lat': 28.6139, 'lon': 77.2090, 'city': code, 'name': f'{code} Airport'}
     )
 
+def calculate_distance_between_codes(code1, code2):
+    """Calculates geodesic distance in kilometers between two airport codes."""
+    c1 = get_airport_coords(code1)
+    c2 = get_airport_coords(code2)
+    R = 6371  # Earth radius in km
+    lat1, lon1 = c1['lat'], c1['lon']
+    lat2, lon2 = c2['lat'], c2['lon']
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = (math.sin(dlat / 2) ** 2 +
+         math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
+         math.sin(dlon / 2) ** 2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return max(150, round(R * c))
+
 def query_opensky_network(callsign=None):
     """
     Attempts to fetch live state from OpenSky Network API.

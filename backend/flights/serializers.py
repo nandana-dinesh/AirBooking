@@ -18,7 +18,7 @@ class FlightSerializer(serializers.ModelSerializer):
             'departure_time', 'arrival_time', 'duration_minutes',
             'price', 'total_seats', 'available_seats',
             'status', 'terminal', 'gate', 'delay_minutes',
-            'baggage_info', 'meal_info', 'refundable', 'stops', 'flight_tag',
+            'distance_km', 'baggage_info', 'meal_info', 'refundable', 'stops', 'flight_tag',
             'base_fare', 'taxes_and_fees',
             'occupied_seats', 'occupancy_rate', 'created_at', 'updated_at'
         ]

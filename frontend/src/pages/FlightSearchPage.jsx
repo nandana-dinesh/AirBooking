@@ -44,7 +44,7 @@ export const FlightSearchPage = () => {
   const [date, setDate] = useState('');
   const [airline, setAirline] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [maxPrice, setMaxPrice] = useState(30000);
+  const [maxPrice, setMaxPrice] = useState(60000);
   const [sortBy, setSortBy] = useState('departure_time');
 
   // Flight data states
@@ -74,14 +74,14 @@ export const FlightSearchPage = () => {
   const [bookingError, setBookingError] = useState('');
   const [isBookingSubmitting, setIsBookingSubmitting] = useState(false);
 
-  // Popular Indian quick route chips
+  // Popular Indian quick route chips with realistic distance-based pricing
   const quickRoutes = [
-    { from: 'DEL', to: 'BOM', label: 'Delhi ⇄ Mumbai', price: '₹3,999' },
-    { from: 'BLR', to: 'GOI', label: 'Bengaluru ⇄ Goa', price: '₹2,899' },
-    { from: 'BOM', to: 'BLR', label: 'Mumbai ⇄ Bengaluru', price: '₹3,450' },
-    { from: 'DEL', to: 'GOI', label: 'Delhi ⇄ Goa', price: '₹5,299' },
-    { from: 'BOM', to: 'COK', label: 'Mumbai ⇄ Kochi', price: '₹3,850' },
-    { from: 'BOM', to: 'DXB', label: 'Mumbai ⇄ Dubai', price: '₹16,450' },
+    { from: 'DEL', to: 'BOM', label: 'Delhi ⇄ Mumbai', price: '₹7,950', dist: '1,148 km' },
+    { from: 'BLR', to: 'GOI', label: 'Bengaluru ⇄ Goa', price: '₹4,890', dist: '480 km' },
+    { from: 'BOM', to: 'BLR', label: 'Mumbai ⇄ Bengaluru', price: '₹6,750', dist: '840 km' },
+    { from: 'DEL', to: 'GOI', label: 'Delhi ⇄ Goa', price: '₹10,850', dist: '1,515 km' },
+    { from: 'BOM', to: 'COK', label: 'Mumbai ⇄ Kochi', price: '₹7,650', dist: '1,070 km' },
+    { from: 'BOM', to: 'DXB', label: 'Mumbai ⇄ Dubai', price: '₹38,500', dist: '1,930 km' },
   ];
 
   // Fetch flights
@@ -94,7 +94,7 @@ export const FlightSearchPage = () => {
       if (date) params.date = date;
       if (airline) params.airline = airline;
       if (statusFilter) params.status = statusFilter;
-      if (maxPrice < 30000) params.max_price = maxPrice;
+      if (maxPrice < 60000) params.max_price = maxPrice;
       if (sortBy) params.ordering = sortBy;
 
       const res = await api.get('/flights/search/', { params });
@@ -347,9 +347,9 @@ export const FlightSearchPage = () => {
             </div>
             <input
               type="range"
-              min="2000"
-              max="30000"
-              step="500"
+              min="3000"
+              max="60000"
+              step="1000"
               value={maxPrice}
               onChange={(e) => setMaxPrice(Number(e.target.value))}
               className="w-full accent-sky-600"
@@ -551,7 +551,7 @@ export const FlightSearchPage = () => {
                             <div className="h-0.5 flex-1 bg-slate-200"></div>
                           </div>
                           <span className="text-[10px] text-emerald-600 font-semibold mt-1">
-                            {flight.stops || 'Non-stop'}
+                            {flight.stops || 'Non-stop'}{flight.distance_km ? ` • ${flight.distance_km} km` : ''}
                           </span>
                         </div>
 
