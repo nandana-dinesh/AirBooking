@@ -125,6 +125,19 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS('  User accounts seeded.'))
 
+        # ── 5a. Clean up any stale / legacy flights ──────────────────────────
+        # Remove flights left over from earlier seeds that have unrealistic
+        # (dollar-era or placeholder) prices below ₹4,000.
+        stale_numbers = ['DL-440', 'AI-202', 'EK-501', 'BA-142', 'UA-882',
+                         'SQ-406', 'AF-112', 'NH-828', '6E-354', 'UK-957',
+                         'AI-479', 'EK-505']
+        deleted, _ = Flight.objects.filter(
+            flight_number__in=stale_numbers
+        ).delete()
+        Flight.objects.filter(price__lt=4000).delete()
+        if deleted:
+            self.stdout.write(f'  Removed {deleted} stale legacy flight(s).')
+
         # ── 5. Flights ───────────────────────────────────────────────────────
         now = timezone.now()
         base = now.replace(minute=0, second=0, microsecond=0)
