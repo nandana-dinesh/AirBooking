@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plane, Heart, Shield, Sparkles } from 'lucide-react';
+import { Plane, Shield, Sparkles, Phone, Mail, MapPin } from 'lucide-react';
 
 export const Footer = () => {
   return (
@@ -11,52 +11,63 @@ export const Footer = () => {
               <div className="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center text-white">
                 <Plane className="w-4 h-4 -rotate-45" />
               </div>
-              <span className="font-bold text-lg">AirBooking</span>
+              <span className="font-bold text-lg">
+                Air<span className="text-sky-400">Booking</span> India
+              </span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Full-Stack Developer Take-Home Platform developed for YUAI Soft Solutions Pvt. Ltd.
-              Real-time flight search, seat reservations, and admin approval workflows.
+              India's smart flight booking and live radar tracking network.
+              Book domestic and international flights, reserve seats with real-time aircraft maps,
+              and track live airborne flights across Indian airways.
             </p>
           </div>
 
           <div>
-            <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-3">Platform</h4>
+            <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-3">Popular Hubs</h4>
             <ul className="space-y-2 text-xs">
-              <li><a href="/flights" className="hover:text-white transition">Flight Search & Booking</a></li>
-              <li><a href="/live-tracker" className="hover:text-white transition">OpenSky Live Radar</a></li>
-              <li><a href="/my-trips" className="hover:text-white transition">My Trips & E-Tickets</a></li>
-              <li><a href="/admin-portal" className="hover:text-white transition">Admin Management Portal</a></li>
+              <li><a href="/flights?origin=DEL" className="hover:text-white transition">New Delhi (DEL)</a></li>
+              <li><a href="/flights?origin=BOM" className="hover:text-white transition">Mumbai (BOM)</a></li>
+              <li><a href="/flights?origin=BLR" className="hover:text-white transition">Bengaluru (BLR)</a></li>
+              <li><a href="/flights?origin=GOI" className="hover:text-white transition">Goa (GOI / GOX)</a></li>
+              <li><a href="/flights?origin=COK" className="hover:text-white transition">Kochi (COK)</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-3">Tech Stack</h4>
+            <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-3">Aviation Partners</h4>
             <ul className="space-y-2 text-xs">
-              <li>Django 5.2 & Django REST Framework</li>
-              <li>SimpleJWT Token Authentication</li>
-              <li>Celery Email Activation Task</li>
-              <li>React 19 + Vite + Tailwind CSS</li>
+              <li>IndiGo Airlines</li>
+              <li>Air India & AI Express</li>
+              <li>Vistara (Tata SIA)</li>
+              <li>Akasa Air</li>
+              <li>Emirates & Singapore Airlines</li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-3">Assignment</h4>
+            <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-3">24x7 Passenger Support</h4>
             <p className="text-xs text-slate-400 mb-2">
-              YUAI Soft Solutions Pvt. Ltd. Full Stack Engineer Assignment.
+              Assisting flyers across India with bookings, seat reservations, and flight alerts.
             </p>
-            <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60 text-[11px] text-slate-300">
-              <span className="block font-semibold text-sky-400">Company Contact:</span>
-              yuaisoftsolutions@gmail.com
+            <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60 text-[11px] text-slate-300 space-y-1">
+              <div className="flex items-center space-x-1.5">
+                <Mail className="w-3.5 h-3.5 text-sky-400" />
+                <span>support@airbooking.in</span>
+              </div>
+              <div className="flex items-center space-x-1.5">
+                <Phone className="w-3.5 h-3.5 text-sky-400" />
+                <span>Toll-Free: 1800-120-AIRBOOK</span>
+              </div>
             </div>
           </div>
         </div>
 
         <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} AirBooking Platform. Built with care for YUAI Soft Solutions.</p>
+          <p>© {new Date().getFullYear()} AirBooking India. All rights reserved. Made for Indian Flyers.</p>
           <div className="flex items-center space-x-4 mt-3 sm:mt-0">
             <span className="inline-flex items-center text-emerald-400">
               <Shield className="w-3.5 h-3.5 mr-1" />
-              Admin Approval Security Active
+              Verified Passenger Safety & Approval System
             </span>
           </div>
         </div>

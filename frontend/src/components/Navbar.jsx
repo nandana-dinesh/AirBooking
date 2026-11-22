@@ -40,8 +40,8 @@ export const Navbar = () => {
               <span className="text-xl font-black tracking-tight text-slate-900 group-hover:text-sky-600 transition-colors">
                 Air<span className="text-sky-600">Booking</span>
               </span>
-              <span className="hidden sm:inline-block ml-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-sky-100 text-sky-800 rounded-full">
-                Portal
+              <span className="hidden sm:inline-block ml-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-800 rounded-full border border-orange-200">
+                India 🇮🇳
               </span>
             </div>
           </Link>

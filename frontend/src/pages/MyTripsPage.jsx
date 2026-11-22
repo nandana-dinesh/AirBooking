@@ -279,9 +279,9 @@ export const MyTripsPage = () => {
                   {/* Actions */}
                   <div className="flex md:flex-col items-center md:items-end justify-between gap-2 border-t md:border-t-0 pt-3 md:pt-0">
                     <div className="text-left md:text-right">
-                      <span className="text-[10px] text-slate-400 block uppercase font-bold">Paid</span>
+                      <span className="text-[10px] text-slate-400 block uppercase font-bold">Fare Paid</span>
                       <span className="text-lg font-black text-slate-900 font-mono">
-                        ${booking.total_price}
+                        ₹{Number(booking.total_price).toLocaleString('en-IN')}
                       </span>
                     </div>
 

@@ -17,6 +17,7 @@ import {
   Check,
   Trash2,
   Send,
+  IndianRupee,
 } from 'lucide-react';
 import api from '../api/client';
 
@@ -32,12 +33,12 @@ export const AdminDashboardPage = () => {
   const [loading, setLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState({ type: '', text: '' });
 
-  // New Flight Modal State
+  // New Flight Modal State with Indian route defaults
   const [isNewFlightModalOpen, setIsNewFlightModalOpen] = useState(false);
   const [flightFormData, setFlightFormData] = useState({
     flight_number: '',
-    airline: 'Air India',
-    aircraft_model: 'Airbus A320neo',
+    airline: 'IndiGo',
+    aircraft_model: 'Airbus A321neo',
     origin_code: 'DEL',
     origin_city: 'New Delhi',
     origin_airport: 'Indira Gandhi International Airport',
@@ -46,12 +47,12 @@ export const AdminDashboardPage = () => {
     destination_airport: 'Chhatrapati Shivaji Maharaj International Airport',
     departure_time: '',
     arrival_time: '',
-    duration_minutes: 120,
-    price: 199.00,
-    total_seats: 180,
-    available_seats: 180,
-    terminal: 'T3',
-    gate: 'A12',
+    duration_minutes: 130,
+    price: 4950.00,
+    total_seats: 222,
+    available_seats: 222,
+    terminal: 'T2',
+    gate: '18A',
   });
 
   // User search/filter
@@ -113,7 +114,6 @@ export const AdminDashboardPage = () => {
     }
   };
 
-  // Initial load
   useEffect(() => {
     if (activeTab === 'pending') fetchPendingUsers();
     if (activeTab === 'flights') fetchFlights();
@@ -216,13 +216,13 @@ export const AdminDashboardPage = () => {
         <div>
           <div className="flex items-center space-x-2 text-indigo-400 mb-1">
             <ShieldAlert className="w-5 h-5" />
-            <span className="text-xs font-bold uppercase tracking-wider">Administration Console</span>
+            <span className="text-xs font-bold uppercase tracking-wider">AirBooking India Operations</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-            AirBooking Control Center
+            Central Aviation Console
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Review user registrations, update flight statuses, manage aircraft inventory, and monitor platform metrics.
+            Review user registrations, update live flight operational statuses, manage aircraft inventory, and monitor booking metrics.
           </p>
         </div>
 
@@ -270,7 +270,7 @@ export const AdminDashboardPage = () => {
             }`}
           >
             <TrendingUp className="w-4 h-4" />
-            <span>Platform Stats</span>
+            <span>Platform Analytics</span>
           </button>
         </div>
       </div>
@@ -304,9 +304,9 @@ export const AdminDashboardPage = () => {
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Pending User Registrations</h2>
+              <h2 className="text-lg font-bold text-slate-900">Pending User Approvals</h2>
               <p className="text-xs text-slate-500">
-                New accounts require manual approval. Approving sends an activation email via Celery.
+                New accounts require administrator approval. Approving queues an activation notification email via Celery.
               </p>
             </div>
             <button
@@ -326,9 +326,9 @@ export const AdminDashboardPage = () => {
           ) : pendingUsers.length === 0 ? (
             <div className="p-12 text-center text-slate-500 space-y-2">
               <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
-              <h3 className="font-bold text-slate-800">Inbox is Clear</h3>
+              <h3 className="font-bold text-slate-800">No Pending Approvals</h3>
               <p className="text-xs text-slate-500">
-                There are no pending registrations awaiting administrator review right now.
+                All registered passenger accounts have been reviewed and approved.
               </p>
             </div>
           ) : (
@@ -357,17 +357,16 @@ export const AdminDashboardPage = () => {
                     </div>
                     {pUser.phone_number && (
                       <div>
-                        <span className="text-slate-400 font-semibold block text-[10px] uppercase">Phone</span>
+                        <span className="text-slate-400 font-semibold block text-[10px] uppercase">Mobile Number</span>
                         <span className="font-medium">{pUser.phone_number}</span>
                       </div>
                     )}
                     <div>
-                      <span className="text-slate-400 font-semibold block text-[10px] uppercase">Registered</span>
+                      <span className="text-slate-400 font-semibold block text-[10px] uppercase">Registered Date</span>
                       <span className="font-medium">{formatDate(pUser.date_joined)}</span>
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="pt-2 border-t border-slate-200 flex space-x-2">
                     <button
                       onClick={() => handleApproveUser(pUser.id, pUser.username)}
@@ -397,7 +396,7 @@ export const AdminDashboardPage = () => {
             <div>
               <h2 className="text-lg font-bold text-slate-900">Flight Inventory & Statuses</h2>
               <p className="text-xs text-slate-500">
-                Update flight operational status (On-Time / Delayed / Cancelled) or add new flights.
+                Update flight operational status (On-Time / Delayed / Cancelled / Boarding) or schedule new flights.
               </p>
             </div>
             <div className="flex items-center space-x-2">
@@ -425,7 +424,7 @@ export const AdminDashboardPage = () => {
                   <th className="py-3 px-4">Airline</th>
                   <th className="py-3 px-4">Route</th>
                   <th className="py-3 px-4">Schedule</th>
-                  <th className="py-3 px-4">Price</th>
+                  <th className="py-3 px-4">Fare (INR)</th>
                   <th className="py-3 px-4">Occupancy</th>
                   <th className="py-3 px-4">Live Status</th>
                   <th className="py-3 px-4 text-right">Actions</th>
@@ -442,7 +441,7 @@ export const AdminDashboardPage = () => {
                     <td className="py-3.5 px-4 font-mono text-[11px]">
                       {formatTime(f.departure_time)} - {formatTime(f.arrival_time)}
                     </td>
-                    <td className="py-3.5 px-4 font-bold">${f.price}</td>
+                    <td className="py-3.5 px-4 font-bold font-mono">₹{Number(f.price).toLocaleString('en-IN')}</td>
                     <td className="py-3.5 px-4">
                       <div className="space-y-1">
                         <span className="font-semibold text-[11px]">
@@ -610,18 +609,17 @@ export const AdminDashboardPage = () => {
       {/* Tab 4: Platform Analytics & Stats */}
       {activeTab === 'stats' && stats && (
         <div className="space-y-6">
-          {/* Key Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-xs flex items-center space-x-4">
               <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
-                <DollarSign className="w-6 h-6" />
+                <span className="text-xl font-bold">₹</span>
               </div>
               <div>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Total Gross Revenue
+                  Total Bookings Value
                 </span>
                 <span className="text-2xl font-black text-slate-900 font-mono">
-                  ${stats.metrics.total_revenue.toLocaleString()}
+                  ₹{Number(stats.metrics.total_revenue).toLocaleString('en-IN')}
                 </span>
               </div>
             </div>
@@ -632,7 +630,7 @@ export const AdminDashboardPage = () => {
               </div>
               <div>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Confirmed Bookings
+                  Confirmed PNRs
                 </span>
                 <span className="text-2xl font-black text-slate-900 font-mono">
                   {stats.metrics.confirmed_bookings}
@@ -646,7 +644,7 @@ export const AdminDashboardPage = () => {
               </div>
               <div>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Total Active Flights
+                  Scheduled Flights
                 </span>
                 <span className="text-2xl font-black text-slate-900 font-mono">
                   {stats.metrics.total_flights}
@@ -669,14 +667,13 @@ export const AdminDashboardPage = () => {
             </div>
           </div>
 
-          {/* Popular Routes Table & Recent Bookings */}
+          {/* Popular Indian Routes Table & Recent Bookings */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Popular Routes */}
             <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-xs space-y-4">
-              <h3 className="font-bold text-slate-900 text-sm">Most Booked Flight Routes</h3>
+              <h3 className="font-bold text-slate-900 text-sm">Most Booked Indian Sectors</h3>
               <div className="divide-y divide-slate-100">
                 {stats.popular_routes.length === 0 ? (
-                  <p className="text-xs text-slate-400 py-4">No route data accumulated yet.</p>
+                  <p className="text-xs text-slate-400 py-4">No sector data accumulated yet.</p>
                 ) : (
                   stats.popular_routes.map((r, idx) => (
                     <div key={idx} className="py-3 flex items-center justify-between text-xs">
@@ -700,7 +697,6 @@ export const AdminDashboardPage = () => {
               </div>
             </div>
 
-            {/* Recent Bookings Feed */}
             <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-xs space-y-4">
               <h3 className="font-bold text-slate-900 text-sm">Recent Confirmed Bookings</h3>
               <div className="divide-y divide-slate-100">
@@ -713,7 +709,9 @@ export const AdminDashboardPage = () => {
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="font-bold text-emerald-600 font-mono">${b.total_price}</span>
+                      <span className="font-bold text-emerald-600 font-mono">
+                        ₹{Number(b.total_price).toLocaleString('en-IN')}
+                      </span>
                       <span className="text-[10px] text-slate-400 block">{b.cabin_class}</span>
                     </div>
                   </div>
@@ -729,7 +727,7 @@ export const AdminDashboardPage = () => {
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in fade-in zoom-in-95">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-base">Add New Scheduled Flight</h3>
+              <h3 className="font-bold text-slate-900 text-base">Schedule New Flight</h3>
               <button
                 onClick={() => setIsNewFlightModalOpen(false)}
                 className="text-slate-400 hover:text-slate-700"
@@ -747,7 +745,7 @@ export const AdminDashboardPage = () => {
                     required
                     value={flightFormData.flight_number}
                     onChange={(e) => setFlightFormData({ ...flightFormData, flight_number: e.target.value.toUpperCase() })}
-                    placeholder="e.g. AI-990"
+                    placeholder="e.g. 6E-2051"
                     className="w-full p-2.5 rounded-xl border border-slate-300 font-mono font-bold"
                   />
                 </div>
@@ -813,7 +811,7 @@ export const AdminDashboardPage = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Departure (UTC)</label>
+                  <label className="block font-bold text-slate-700 mb-1">Departure Time</label>
                   <input
                     type="datetime-local"
                     required
@@ -823,7 +821,7 @@ export const AdminDashboardPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Arrival (UTC)</label>
+                  <label className="block font-bold text-slate-700 mb-1">Arrival Time</label>
                   <input
                     type="datetime-local"
                     required
@@ -836,7 +834,7 @@ export const AdminDashboardPage = () => {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Base Price ($)</label>
+                  <label className="block font-bold text-slate-700 mb-1">Base Fare (₹)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -880,7 +878,7 @@ export const AdminDashboardPage = () => {
                   type="submit"
                   className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition"
                 >
-                  Save & Publish Flight
+                  Publish Flight
                 </button>
               </div>
             </form>

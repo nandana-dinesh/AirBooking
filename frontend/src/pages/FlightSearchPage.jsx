@@ -39,7 +39,7 @@ export const FlightSearchPage = () => {
   const [date, setDate] = useState('');
   const [airline, setAirline] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [maxPrice, setMaxPrice] = useState(1000);
+  const [maxPrice, setMaxPrice] = useState(30000);
   const [sortBy, setSortBy] = useState('departure_time');
 
   // Flight data states
@@ -51,9 +51,11 @@ export const FlightSearchPage = () => {
   const [seatCount, setSeatCount] = useState(1);
   const [cabinClass, setCabinClass] = useState('ECONOMY');
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [passengerName, setPassengerName] = useState(user?.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : (user?.username || ''));
+  const [passengerName, setPassengerName] = useState(
+    user?.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : (user?.username || '')
+  );
   const [passengerEmail, setPassengerEmail] = useState(user?.email || '');
-  const [passengerPhone, setPassengerPhone] = useState(user?.phone_number || '');
+  const [passengerPhone, setPassengerPhone] = useState(user?.phone_number || '+91 98765 43210');
 
   // Modals state
   const [isSeatMapOpen, setIsSeatMapOpen] = useState(false);
@@ -74,7 +76,7 @@ export const FlightSearchPage = () => {
       if (date) params.date = date;
       if (airline) params.airline = airline;
       if (statusFilter) params.status = statusFilter;
-      if (maxPrice < 1000) params.max_price = maxPrice;
+      if (maxPrice < 30000) params.max_price = maxPrice;
       if (sortBy) params.ordering = sortBy;
 
       const res = await api.get('/flights/search/', { params });
@@ -91,12 +93,11 @@ export const FlightSearchPage = () => {
     fetchFlights();
   }, [origin, destination, date, airline, statusFilter, maxPrice, sortBy]);
 
-  // Update default passenger info when user changes
   useEffect(() => {
     if (user) {
       if (!passengerName) setPassengerName(`${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username);
       if (!passengerEmail) setPassengerEmail(user.email || '');
-      if (!passengerPhone && user.phone_number) setPassengerPhone(user.phone_number);
+      if (user.phone_number) setPassengerPhone(user.phone_number);
     }
   }, [user]);
 
@@ -122,7 +123,7 @@ export const FlightSearchPage = () => {
 
   const handleProceedToPayment = () => {
     if (!passengerName.trim() || !passengerEmail.trim()) {
-      setBookingError('Please enter passenger full name and email address.');
+      setBookingError('Please enter passenger full name and notification email.');
       return;
     }
     if (selectedSeats.length !== seatCount) {
@@ -156,16 +157,13 @@ export const FlightSearchPage = () => {
       const newBooking = res.data.booking;
       setConfirmedBooking(newBooking);
 
-      // Trigger Confetti Celebration
       confetti({
         particleCount: 120,
         spread: 70,
         origin: { y: 0.6 },
       });
 
-      // Open Boarding Pass
       setIsBoardingPassOpen(true);
-      // Refresh flight inventory
       fetchFlights();
       setSelectedFlight(null);
     } catch (err) {
@@ -185,37 +183,32 @@ export const FlightSearchPage = () => {
     return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const formatDate = (isoString) => {
-    if (!isoString) return '';
-    return new Date(isoString).toLocaleDateString([], { month: 'short', day: 'numeric' });
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Search Header Banner */}
-      <div className="bg-gradient-to-r from-sky-700 via-sky-600 to-indigo-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-sky-800 via-sky-700 to-indigo-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10 max-w-2xl">
           <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/20 uppercase tracking-widest inline-block mb-3">
-            Search Flights
+            Domestic & International Flights
           </span>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
-            Fly Anywhere. Real-Time Availability & Instant Seats.
+            Book Flights in India with Real-Time Seat Availability
           </h1>
           <p className="text-sky-100 text-sm mt-2">
-            Filter scheduled flights, pick your favorite aircraft seats, and track live airborne flights with OpenSky Network telemetry.
+            Compare fares on IndiGo, Air India, Vistara, and Akasa Air. Reserve your seat and pay via UPI, RuPay, or Cards.
           </p>
         </div>
 
         {/* Search Bar Inputs */}
         <div className="relative z-10 mt-6 bg-white/10 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-slate-800">
           <div>
-            <label className="block text-[11px] font-bold text-sky-100 uppercase mb-1">Origin City / Code</label>
+            <label className="block text-[11px] font-bold text-sky-100 uppercase mb-1">From (City or Code)</label>
             <div className="relative">
               <input
                 type="text"
                 value={origin}
                 onChange={(e) => setOrigin(e.target.value)}
-                placeholder="e.g. DEL, New York, BOM"
+                placeholder="e.g. DEL, New Delhi, BOM, BLR"
                 className="w-full pl-8 pr-3 py-2 bg-white rounded-xl text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-sky-400 placeholder-slate-400"
               />
               <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3" />
@@ -223,13 +216,13 @@ export const FlightSearchPage = () => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold text-sky-100 uppercase mb-1">Destination</label>
+            <label className="block text-[11px] font-bold text-sky-100 uppercase mb-1">To (Destination)</label>
             <div className="relative">
               <input
                 type="text"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
-                placeholder="e.g. BOM, London, LHR"
+                placeholder="e.g. BOM, Mumbai, GOI, COK"
                 className="w-full pl-8 pr-3 py-2 bg-white rounded-xl text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-sky-400 placeholder-slate-400"
               />
               <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3" />
@@ -237,7 +230,7 @@ export const FlightSearchPage = () => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold text-sky-100 uppercase mb-1">Departure Date</label>
+            <label className="block text-[11px] font-bold text-sky-100 uppercase mb-1">Date of Travel</label>
             <div className="relative">
               <input
                 type="date"
@@ -277,7 +270,7 @@ export const FlightSearchPage = () => {
                 setDate('');
                 setAirline('');
                 setStatusFilter('');
-                setMaxPrice(1000);
+                setMaxPrice(30000);
               }}
               className="text-[11px] font-semibold text-sky-600 hover:text-sky-700"
             >
@@ -285,40 +278,39 @@ export const FlightSearchPage = () => {
             </button>
           </div>
 
-          {/* Max Price Slider */}
+          {/* Max Price Slider in INR */}
           <div>
             <div className="flex justify-between text-xs font-bold text-slate-700 mb-2">
-              <span>Max Price</span>
-              <span className="text-sky-600 font-mono">${maxPrice}</span>
+              <span>Max Fare</span>
+              <span className="text-sky-700 font-mono font-bold">₹{maxPrice.toLocaleString('en-IN')}</span>
             </div>
             <input
               type="range"
-              min="100"
-              max="1000"
-              step="25"
+              min="2000"
+              max="30000"
+              step="500"
               value={maxPrice}
               onChange={(e) => setMaxPrice(Number(e.target.value))}
               className="w-full accent-sky-600"
             />
           </div>
 
-          {/* Airline Selector */}
+          {/* Indian Airline Selector */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Airline</label>
+            <label className="block text-xs font-bold text-slate-700 mb-2 uppercase">Preferred Airline</label>
             <select
               value={airline}
               onChange={(e) => setAirline(e.target.value)}
-              className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-sky-500"
+              className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-sky-500 bg-white"
             >
               <option value="">All Airlines</option>
+              <option value="IndiGo">IndiGo</option>
               <option value="Air India">Air India</option>
+              <option value="Vistara">Vistara</option>
+              <option value="Akasa Air">Akasa Air</option>
+              <option value="Air India Express">Air India Express</option>
               <option value="Emirates">Emirates</option>
-              <option value="British Airways">British Airways</option>
-              <option value="Delta">Delta Air Lines</option>
               <option value="Singapore Airlines">Singapore Airlines</option>
-              <option value="United Airlines">United Airlines</option>
-              <option value="Air France">Air France</option>
-              <option value="All Nippon Airways">All Nippon Airways</option>
             </select>
           </div>
 
@@ -328,7 +320,7 @@ export const FlightSearchPage = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-sky-500"
+              className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-sky-500 bg-white"
             >
               <option value="">All Statuses</option>
               <option value="ON_TIME">On-Time</option>
@@ -343,12 +335,12 @@ export const FlightSearchPage = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-sky-500"
+              className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-hidden focus:ring-2 focus:ring-sky-500 bg-white"
             >
-              <option value="departure_time">Departure Time (Earliest)</option>
+              <option value="departure_time">Departure (Earliest first)</option>
               <option value="price">Price (Lowest first)</option>
               <option value="-price">Price (Highest first)</option>
-              <option value="duration_minutes">Duration (Shortest)</option>
+              <option value="duration_minutes">Duration (Shortest first)</option>
             </select>
           </div>
         </aside>
@@ -357,28 +349,28 @@ export const FlightSearchPage = () => {
         <main className="lg:col-span-3 space-y-4">
           <div className="flex items-center justify-between px-1">
             <span className="text-sm font-bold text-slate-700">
-              Showing <span className="text-sky-600">{flights.length}</span> Available Flights
+              Showing <span className="text-sky-700 font-extrabold">{flights.length}</span> Scheduled Flights
             </span>
             <button
               onClick={fetchFlights}
               className="flex items-center space-x-1 text-xs font-semibold text-slate-500 hover:text-sky-600"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-              <span>Refresh list</span>
+              <span>Refresh schedules</span>
             </button>
           </div>
 
           {loading ? (
             <div className="bg-white rounded-3xl p-12 border border-slate-200 text-center space-y-3">
               <RefreshCw className="w-8 h-8 animate-spin text-sky-600 mx-auto" />
-              <p className="text-sm text-slate-500 font-medium">Scanning live flight schedules...</p>
+              <p className="text-sm text-slate-500 font-medium">Scanning Indian aviation routes...</p>
             </div>
           ) : flights.length === 0 ? (
             <div className="bg-white rounded-3xl p-12 border border-slate-200 text-center space-y-3">
               <Plane className="w-10 h-10 text-slate-300 mx-auto" />
-              <h3 className="text-base font-bold text-slate-800">No flights matched your search criteria</h3>
+              <h3 className="text-base font-bold text-slate-800">No flights matched your filter</h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Try clearing some filters or searching for common hubs like DEL, BOM, JFK, LHR, or DXB.
+                Try searching for major Indian hubs like DEL, BOM, BLR, GOI, HYD, or COK.
               </p>
             </div>
           ) : (
@@ -470,10 +462,12 @@ export const FlightSearchPage = () => {
                       {/* Right: Pricing & CTA */}
                       <div className="flex md:flex-col items-center md:items-end justify-between border-t md:border-t-0 pt-3 md:pt-0 border-slate-100 min-w-[160px]">
                         <div className="text-left md:text-right">
-                          <span className="text-[10px] text-slate-400 block uppercase font-bold">From</span>
-                          <span className="text-2xl font-black text-slate-900">${flight.price}</span>
+                          <span className="text-[10px] text-slate-400 block uppercase font-bold">Fare from</span>
+                          <span className="text-2xl font-black text-slate-900 font-mono">
+                            ₹{Number(flight.price).toLocaleString('en-IN')}
+                          </span>
                           <span className="text-[11px] text-slate-500 block">
-                            {flight.available_seats} seats left
+                            {flight.available_seats} seats remaining
                           </span>
                         </div>
 
@@ -495,26 +489,26 @@ export const FlightSearchPage = () => {
                                 : 'bg-sky-600 hover:bg-sky-700 text-white shadow-md shadow-sky-600/20'
                             }`}
                           >
-                            <span>{isSelected ? 'Configuring' : 'Book'}</span>
+                            <span>{isSelected ? 'Selecting' : 'Book'}</span>
                             <ChevronRight className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </div>
                     </div>
 
-                    {/* Integrated Booking Drawer (Expands when Selected) */}
+                    {/* Integrated Booking Drawer */}
                     {isSelected && (
                       <div className="bg-slate-50 border-t border-slate-200 p-6 space-y-6 animate-in slide-in-from-top-4 duration-200">
                         <div className="flex items-center justify-between">
                           <h4 className="font-bold text-slate-900 text-sm flex items-center space-x-2">
                             <Sparkles className="w-4 h-4 text-sky-600" />
-                            <span>Customize Booking & Passenger Details</span>
+                            <span>Passenger Details & Aircraft Seat Picker</span>
                           </h4>
                           <button
                             onClick={() => setSelectedFlight(null)}
                             className="text-xs font-semibold text-slate-500 hover:text-slate-800"
                           >
-                            Close
+                            Cancel
                           </button>
                         </div>
 
@@ -526,26 +520,24 @@ export const FlightSearchPage = () => {
                         )}
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {/* Cabin Class */}
                           <div>
                             <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">
-                              Cabin Class
+                              Travel Class
                             </label>
                             <select
                               value={cabinClass}
                               onChange={(e) => setCabinClass(e.target.value)}
                               className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-semibold bg-white"
                             >
-                              <option value="ECONOMY">Economy (1.0x)</option>
+                              <option value="ECONOMY">Economy Class (Standard)</option>
                               <option value="BUSINESS">Business Class (2.2x)</option>
                               <option value="FIRST">First Class (3.5x)</option>
                             </select>
                           </div>
 
-                          {/* Seat Count */}
                           <div>
                             <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">
-                              Passengers / Seats
+                              Passengers Count
                             </label>
                             <input
                               type="number"
@@ -561,7 +553,6 @@ export const FlightSearchPage = () => {
                             />
                           </div>
 
-                          {/* Seat Map Picker Button */}
                           <div>
                             <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">
                               Aircraft Seat Map
@@ -576,11 +567,11 @@ export const FlightSearchPage = () => {
                                 <span>
                                   {selectedSeats.length > 0
                                     ? `Seats: ${selectedSeats.join(', ')}`
-                                    : `Select ${seatCount} Seat${seatCount > 1 ? 's' : ''}`}
+                                    : `Choose ${seatCount} Seat${seatCount > 1 ? 's' : ''}`}
                                 </span>
                               </div>
                               <span className="text-[10px] bg-sky-200 px-1.5 py-0.5 rounded-md font-mono">
-                                Map
+                                Seat Map
                               </span>
                             </button>
                           </div>
@@ -590,39 +581,39 @@ export const FlightSearchPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
                             <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">
-                              Passenger Full Name
+                              Full Name (As per Govt. ID)
                             </label>
                             <input
                               type="text"
                               required
                               value={passengerName}
                               onChange={(e) => setPassengerName(e.target.value)}
-                              placeholder="e.g. John Doe"
+                              placeholder="e.g. Rahul Sharma"
                               className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium bg-white"
                             />
                           </div>
                           <div>
                             <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">
-                              Notification Email
+                              Email Address
                             </label>
                             <input
                               type="email"
                               required
                               value={passengerEmail}
                               onChange={(e) => setPassengerEmail(e.target.value)}
-                              placeholder="john@example.com"
+                              placeholder="rahul@example.in"
                               className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium bg-white"
                             />
                           </div>
                           <div>
                             <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">
-                              Phone Number
+                              Mobile Number (for SMS & WhatsApp alerts)
                             </label>
                             <input
                               type="text"
                               value={passengerPhone}
                               onChange={(e) => setPassengerPhone(e.target.value)}
-                              placeholder="+1 555-019-2834"
+                              placeholder="+91 98765 43210"
                               className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium bg-white"
                             />
                           </div>
@@ -631,12 +622,12 @@ export const FlightSearchPage = () => {
                         {/* Bottom Summary & Confirm */}
                         <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                           <div>
-                            <span className="text-xs text-slate-500 block">Total Calculated Price</span>
+                            <span className="text-xs text-slate-500 block">Total Payable Amount</span>
                             <span className="text-2xl font-black text-sky-800 font-mono">
-                              ${calculateTotalPrice()}
+                              ₹{calculateTotalPrice().toLocaleString('en-IN')}
                             </span>
                             <span className="text-[11px] text-slate-400 block">
-                              Includes all airport security and airline fees
+                              Inclusive of all airport taxes and passenger service fees
                             </span>
                           </div>
 
@@ -646,7 +637,7 @@ export const FlightSearchPage = () => {
                             className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md shadow-emerald-600/20 transition flex items-center justify-center space-x-2"
                           >
                             <CreditCard className="w-4 h-4" />
-                            <span>Continue to Simulated Payment</span>
+                            <span>Continue to Payment (UPI / RuPay / Cards)</span>
                           </button>
                         </div>
                       </div>

@@ -140,7 +140,7 @@ export const RegisterPage = () => {
                     name="username"
                     value={formData.username}
                     onChange={handleChange}
-                    placeholder="e.g. alex_hunter"
+                    placeholder="e.g. rahul_sharma"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-sky-500 text-sm font-medium"
                   />
                 </div>
@@ -152,7 +152,7 @@ export const RegisterPage = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="alex@example.com"
+                    placeholder="rahul@example.in"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-sky-500 text-sm font-medium"
                   />
                 </div>
@@ -167,7 +167,7 @@ export const RegisterPage = () => {
                     name="first_name"
                     value={formData.first_name}
                     onChange={handleChange}
-                    placeholder="Alex"
+                    placeholder="Rahul"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-sky-500 text-sm font-medium"
                   />
                 </div>
@@ -179,20 +179,20 @@ export const RegisterPage = () => {
                     name="last_name"
                     value={formData.last_name}
                     onChange={handleChange}
-                    placeholder="Hunter"
+                    placeholder="Sharma"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-sky-500 text-sm font-medium"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Phone Number</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Mobile Number (India +91)</label>
                 <input
                   type="text"
                   name="phone_number"
                   value={formData.phone_number}
                   onChange={handleChange}
-                  placeholder="+1 (555) 019-2834"
+                  placeholder="+91 98765 43210"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-sky-500 text-sm font-medium"
                 />
               </div>

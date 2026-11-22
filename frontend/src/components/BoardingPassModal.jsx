@@ -64,9 +64,9 @@ export const BoardingPassModal = ({ isOpen, onClose, booking }) => {
             <div className="bg-gradient-to-r from-sky-600 via-sky-700 to-indigo-700 px-6 py-4 text-white flex items-center justify-between">
               <div>
                 <span className="text-[10px] uppercase tracking-widest font-bold opacity-80 block">
-                  Airline Boarding Document
+                  DGCA Verified Boarding Pass
                 </span>
-                <span className="text-xl font-black">{flight.airline || 'AirBooking Airways'}</span>
+                <span className="text-xl font-black">{flight.airline || 'Air India'}</span>
               </div>
               <div className="text-right">
                 <span className="text-[10px] uppercase tracking-widest font-bold opacity-80 block">

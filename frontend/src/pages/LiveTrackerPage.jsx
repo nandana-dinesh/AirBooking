@@ -92,14 +92,14 @@ export const LiveTrackerPage = () => {
                 </span>
               </div>
               <span className="text-xs font-bold uppercase tracking-widest">
-                OpenSky Network & ADS-B Live Stream
+                OpenSky Network & DGCA ADS-B Telemetry Stream
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Real-Time Global Flight Radar
+              Live Indian Airspace Radar & Telemetry
             </h1>
             <p className="text-xs text-slate-400 mt-1 max-w-xl">
-              Streaming real-time coordinates, barometric altitude, true ground speed, and route trajectories across international airways.
+              Real-time transponder tracking across Indian domestic routes and international corridors. Live barometric altitude, true ground speed, and route trajectories.
             </p>
           </div>
 

@@ -4,18 +4,24 @@ import requests
 from datetime import datetime, timezone
 from django.utils import timezone as dj_timezone
 
-# Known airport coordinates for calculating live paths
+# Indian & connected international airport coordinates for accurate live trajectory plotting
 AIRPORT_COORDINATES = {
-    'DEL': {'lat': 28.5562, 'lon': 77.1000, 'city': 'New Delhi', 'name': 'Indira Gandhi Intl'},
-    'BOM': {'lat': 19.0896, 'lon': 72.8656, 'city': 'Mumbai', 'name': 'Chhatrapati Shivaji Intl'},
-    'BLR': {'lat': 13.1986, 'lon': 77.7066, 'city': 'Bengaluru', 'name': 'Kempegowda Intl'},
-    'DXB': {'lat': 25.2532, 'lon': 55.3657, 'city': 'Dubai', 'name': 'Dubai Intl'},
-    'LHR': {'lat': 51.4700, 'lon': -0.4543, 'city': 'London', 'name': 'Heathrow'},
-    'JFK': {'lat': 40.6413, 'lon': -73.7781, 'city': 'New York', 'name': 'John F. Kennedy Intl'},
-    'SIN': {'lat': 1.3644, 'lon': 103.9915, 'city': 'Singapore', 'name': 'Changi Intl'},
-    'HND': {'lat': 35.5494, 'lon': 139.7798, 'city': 'Tokyo', 'name': 'Haneda'},
-    'CDG': {'lat': 49.0097, 'lon': 2.5479, 'city': 'Paris', 'name': 'Charles de Gaulle'},
-    'SFO': {'lat': 37.6213, 'lon': -122.3790, 'city': 'San Francisco', 'name': 'San Francisco Intl'},
+    'DEL': {'lat': 28.5562, 'lon': 77.1000, 'city': 'New Delhi', 'name': 'Indira Gandhi International Airport'},
+    'BOM': {'lat': 19.0896, 'lon': 72.8656, 'city': 'Mumbai', 'name': 'Chhatrapati Shivaji Maharaj International Airport'},
+    'BLR': {'lat': 13.1986, 'lon': 77.7066, 'city': 'Bengaluru', 'name': 'Kempegowda International Airport'},
+    'MAA': {'lat': 12.9941, 'lon': 80.1709, 'city': 'Chennai', 'name': 'Chennai International Airport'},
+    'CCU': {'lat': 22.6547, 'lon': 88.4467, 'city': 'Kolkata', 'name': 'Netaji Subhash Chandra Bose International Airport'},
+    'HYD': {'lat': 17.2403, 'lon': 78.4294, 'city': 'Hyderabad', 'name': 'Rajiv Gandhi International Airport'},
+    'COK': {'lat': 10.1556, 'lon': 76.4019, 'city': 'Kochi', 'name': 'Cochin International Airport'},
+    'GOI': {'lat': 15.3808, 'lon': 73.8314, 'city': 'Goa (Dabolim)', 'name': 'Dabolim Airport'},
+    'GOX': {'lat': 15.7483, 'lon': 73.8753, 'city': 'Goa (Mopa)', 'name': 'Manohar International Airport'},
+    'AMD': {'lat': 23.0772, 'lon': 72.6347, 'city': 'Ahmedabad', 'name': 'Sardar Vallabhbhai Patel International Airport'},
+    'PNQ': {'lat': 18.5822, 'lon': 73.9197, 'city': 'Pune', 'name': 'Pune International Airport'},
+    'JAI': {'lat': 26.8242, 'lon': 75.8122, 'city': 'Jaipur', 'name': 'Jaipur International Airport'},
+    'DXB': {'lat': 25.2532, 'lon': 55.3657, 'city': 'Dubai', 'name': 'Dubai International Airport'},
+    'SIN': {'lat': 1.3644, 'lon': 103.9915, 'city': 'Singapore', 'name': 'Singapore Changi Airport'},
+    'BKK': {'lat': 13.6900, 'lon': 100.7501, 'city': 'Bangkok', 'name': 'Suvarnabhumi Airport'},
+    'LHR': {'lat': 51.4700, 'lon': -0.4543, 'city': 'London', 'name': 'Heathrow Airport'},
 }
 
 def get_airport_coords(code):
@@ -36,7 +42,6 @@ def query_opensky_network(callsign=None):
             data = response.json()
             states = data.get('states', [])
             if callsign and states:
-                # search for callsign match
                 clean_callsign = callsign.replace("-", "").upper()
                 for state in states:
                     if state[1] and clean_callsign in state[1].strip().upper():
@@ -80,7 +85,7 @@ def calculate_live_flight_telemetry(flight):
         speed_knots = 0
         curr_lat = origin_coords['lat']
         curr_lon = origin_coords['lon']
-    elif elapsed_seconds < -1800: # more than 30 mins before departure
+    elif elapsed_seconds < -1800:
         progress_pct = 0
         flight_phase = 'Scheduled'
         altitude_ft = 0
@@ -109,12 +114,10 @@ def calculate_live_flight_telemetry(flight):
             altitude_ft = 35000 + random.choice([-200, 0, 150, -50])
             speed_knots = 485 + random.choice([-5, 0, 8, -3])
 
-        # Interpolate coordinates along great-circle line
         fraction = progress_pct / 100.0
         curr_lat = round(origin_coords['lat'] + (dest_coords['lat'] - origin_coords['lat']) * fraction, 4)
         curr_lon = round(origin_coords['lon'] + (dest_coords['lon'] - origin_coords['lon']) * fraction, 4)
     else:
-        # Flight has arrived
         progress_pct = 100
         flight_phase = 'Arrived at Gate'
         altitude_ft = 0
@@ -131,7 +134,6 @@ def calculate_live_flight_telemetry(flight):
     initial_bearing = math.atan2(x, y)
     bearing_deg = round((math.degrees(initial_bearing) + 360) % 360, 1)
 
-    # Optional live feed check
     opensky_data = query_opensky_network(flight.flight_number)
 
     return {
