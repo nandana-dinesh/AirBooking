@@ -1,3 +1,4 @@
+from decimal import Decimal
 from rest_framework import serializers
 from .models import Flight
 from bookings.models import Booking
@@ -5,6 +6,8 @@ from bookings.models import Booking
 class FlightSerializer(serializers.ModelSerializer):
     occupied_seats = serializers.SerializerMethodField()
     occupancy_rate = serializers.SerializerMethodField()
+    base_fare = serializers.SerializerMethodField()
+    taxes_and_fees = serializers.SerializerMethodField()
 
     class Meta:
         model = Flight
@@ -15,11 +18,20 @@ class FlightSerializer(serializers.ModelSerializer):
             'departure_time', 'arrival_time', 'duration_minutes',
             'price', 'total_seats', 'available_seats',
             'status', 'terminal', 'gate', 'delay_minutes',
+            'baggage_info', 'meal_info', 'refundable', 'stops', 'flight_tag',
+            'base_fare', 'taxes_and_fees',
             'occupied_seats', 'occupancy_rate', 'created_at', 'updated_at'
         ]
 
+    def get_base_fare(self, obj):
+        # Realistic airfare breakdown: 82% base fare
+        return round(float(obj.price) * 0.82, 2)
+
+    def get_taxes_and_fees(self, obj):
+        # 18% Aviation Security Fee (ASF), User Development Fee (UDF), and GST
+        return round(float(obj.price) * 0.18, 2)
+
     def get_occupied_seats(self, obj):
-        # Retrieve all reserved seats for confirmed bookings on this flight
         bookings = Booking.objects.filter(flight=obj, booking_status=Booking.STATUS_CONFIRMED)
         seats = []
         for b in bookings:

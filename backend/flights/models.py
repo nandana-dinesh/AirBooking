@@ -21,7 +21,7 @@ class Flight(models.Model):
     flight_number = models.CharField(max_length=20, unique=True, db_index=True)
     airline = models.CharField(max_length=100)
     airline_code = models.CharField(max_length=10, blank=True)
-    aircraft_model = models.CharField(max_length=100, default='Airbus A320neo')
+    aircraft_model = models.CharField(max_length=100, default='Airbus A321neo')
 
     origin_code = models.CharField(max_length=10, db_index=True)
     origin_city = models.CharField(max_length=100)
@@ -43,6 +43,13 @@ class Flight(models.Model):
     terminal = models.CharField(max_length=20, default='T2')
     gate = models.CharField(max_length=20, default='B4')
     delay_minutes = models.PositiveIntegerField(default=0)
+
+    # Humanized airline & passenger service details
+    baggage_info = models.CharField(max_length=100, default='15 kg Check-in • 7 kg Cabin')
+    meal_info = models.CharField(max_length=100, default='Complimentary Hot Meal')
+    refundable = models.BooleanField(default=True)
+    stops = models.CharField(max_length=50, default='Non-stop')
+    flight_tag = models.CharField(max_length=50, blank=True, default='') # e.g. 'Cheapest', 'Fastest', 'Popular Choice'
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

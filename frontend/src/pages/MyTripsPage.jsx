@@ -13,6 +13,10 @@ import {
   RefreshCw,
   Printer,
   ChevronRight,
+  ShieldCheck,
+  Utensils,
+  Receipt,
+  Sparkles,
 } from 'lucide-react';
 import api from '../api/client';
 import { BoardingPassModal } from '../components/BoardingPassModal';
@@ -58,7 +62,7 @@ export const MyTripsPage = () => {
     try {
       setIsCancelling(true);
       const res = await api.post(`/bookings/${cancelModalBooking.id}/cancel/`);
-      setMessage(`Booking ${cancelModalBooking.booking_reference} cancelled successfully. Seats refunded.`);
+      setMessage(`Booking ${cancelModalBooking.booking_reference} cancelled successfully. Seats refunded to inventory.`);
       setCancelModalBooking(null);
       setIsCancelling(false);
       fetchTrips();
@@ -90,13 +94,13 @@ export const MyTripsPage = () => {
         <div>
           <div className="flex items-center space-x-2 text-sky-600 mb-1">
             <Luggage className="w-5 h-5" />
-            <span className="text-xs font-bold uppercase tracking-wider">Trip Management</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Passenger Itineraries</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            My Booked Flights & Trips
+            My Trips & Electronic Tickets
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Access your active itineraries, download electronic boarding passes, and track live flights.
+            Manage your booked flights, view live boarding times, print electronic boarding passes, and track flights.
           </p>
         </div>
 
@@ -108,7 +112,7 @@ export const MyTripsPage = () => {
               filter === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'hover:text-slate-900'
             }`}
           >
-            All
+            All Bookings
           </button>
           <button
             onClick={() => setFilter('upcoming')}
@@ -124,7 +128,7 @@ export const MyTripsPage = () => {
               filter === 'past' ? 'bg-white text-slate-900 shadow-xs' : 'hover:text-slate-900'
             }`}
           >
-            Past
+            Past Flights
           </button>
           <button
             onClick={() => setFilter('cancelled')}
@@ -159,16 +163,16 @@ export const MyTripsPage = () => {
         <div className="bg-white rounded-3xl p-12 border border-slate-200 text-center space-y-4">
           <Luggage className="w-12 h-12 text-slate-300 mx-auto" />
           <div>
-            <h3 className="text-base font-bold text-slate-800">No bookings found in this view</h3>
+            <h3 className="text-base font-bold text-slate-800">No bookings in this tab</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
-              Ready for your next voyage? Search available flights across major airlines now.
+              Ready for your next journey? Book flights across major Indian sectors now.
             </p>
           </div>
           <a
             href="/flights"
-            className="inline-flex items-center px-4 py-2 bg-sky-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-sky-700 transition"
+            className="inline-flex items-center px-5 py-2.5 bg-sky-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-sky-700 transition"
           >
-            Find Flights
+            Book a Flight
           </a>
         </div>
       ) : (
@@ -181,19 +185,21 @@ export const MyTripsPage = () => {
               <div
                 key={booking.id}
                 className={`bg-white rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-md transition overflow-hidden ${
-                  isCancelled ? 'opacity-70 bg-slate-50/50' : ''
+                  isCancelled ? 'opacity-75 bg-slate-50/50' : ''
                 }`}
               >
-                {/* Top strip */}
+                {/* Top Strip */}
                 <div className="bg-slate-50 px-6 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
                   <div className="flex items-center space-x-3">
-                    <span className="font-mono font-bold text-slate-700 bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                    <span className="font-mono font-bold text-slate-800 bg-white px-2.5 py-0.5 rounded-md border border-slate-200">
                       PNR: {booking.booking_reference}
                     </span>
                     <span className="text-slate-400">•</span>
                     <span className="text-slate-500 font-medium">
                       Booked on {formatDate(booking.created_at)}
                     </span>
+                    <span className="text-slate-400">•</span>
+                    <span className="text-slate-600 font-medium">{booking.payment_method}</span>
                   </div>
 
                   <div className="flex items-center space-x-2">
@@ -214,14 +220,17 @@ export const MyTripsPage = () => {
 
                 {/* Body Row */}
                 <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  {/* Airline & Number */}
-                  <div className="min-w-[130px]">
+                  {/* Airline & Aircraft */}
+                  <div className="min-w-[140px]">
                     <span className="text-xs font-mono font-bold text-slate-400">
                       {flight.flight_number}
                     </span>
-                    <h4 className="font-bold text-slate-900 text-base">{flight.airline}</h4>
+                    <h4 className="font-extrabold text-slate-900 text-base">{flight.airline}</h4>
                     <span className="text-[11px] text-slate-500 block truncate">
                       {flight.aircraft_model}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono block mt-1">
+                      T{flight.terminal || '2'} • Gate {flight.gate || '14'}
                     </span>
                   </div>
 
@@ -240,7 +249,7 @@ export const MyTripsPage = () => {
                     </div>
 
                     <div className="flex flex-col items-center px-4">
-                      <span className="text-[10px] font-bold text-slate-400 mb-1">
+                      <span className="text-[10px] font-bold text-slate-500 mb-1">
                         {flight.duration_minutes ? `${Math.floor(flight.duration_minutes / 60)}h ${flight.duration_minutes % 60}m` : 'Direct'}
                       </span>
                       <div className="flex items-center space-x-1 w-20 sm:w-28">
@@ -248,7 +257,7 @@ export const MyTripsPage = () => {
                         <Plane className="w-3.5 h-3.5 text-sky-600 rotate-90 shrink-0" />
                         <div className="h-0.5 flex-1 bg-slate-200"></div>
                       </div>
-                      <span className="text-[10px] text-slate-400 mt-1">Non-stop</span>
+                      <span className="text-[10px] text-emerald-600 font-semibold mt-1">Non-stop</span>
                     </div>
 
                     <div className="text-right">
@@ -264,24 +273,27 @@ export const MyTripsPage = () => {
                     </div>
                   </div>
 
-                  {/* Passenger & Seat details */}
+                  {/* Passenger & Seats */}
                   <div className="text-xs space-y-1 min-w-[140px] border-l border-slate-100 pl-4">
                     <div>
                       <span className="text-slate-400 text-[10px] block uppercase font-bold">Passenger</span>
                       <span className="font-bold text-slate-800">{booking.passenger_name}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 text-[10px] block uppercase font-bold">Seats</span>
-                      <span className="font-bold text-sky-700 font-mono">{booking.seat_numbers}</span>
+                      <span className="text-slate-400 text-[10px] block uppercase font-bold">Allocated Seats</span>
+                      <span className="font-bold text-sky-700 font-mono text-sm">{booking.seat_numbers}</span>
                     </div>
                   </div>
 
-                  {/* Actions */}
+                  {/* Price & Actions */}
                   <div className="flex md:flex-col items-center md:items-end justify-between gap-2 border-t md:border-t-0 pt-3 md:pt-0">
                     <div className="text-left md:text-right">
                       <span className="text-[10px] text-slate-400 block uppercase font-bold">Fare Paid</span>
                       <span className="text-lg font-black text-slate-900 font-mono">
                         ₹{Number(booking.total_price).toLocaleString('en-IN')}
+                      </span>
+                      <span className="text-[10px] text-emerald-600 font-semibold block">
+                        {booking.payment_status}
                       </span>
                     </div>
 
@@ -352,7 +364,7 @@ export const MyTripsPage = () => {
                 <span className="font-mono font-bold text-slate-800">
                   {cancelModalBooking.booking_reference}
                 </span>
-                ? Reserved seat(s) will be returned to the airline inventory and the payment will be marked refunded.
+                ? Reserved seat(s) will be returned to the airline inventory and the payment will be marked refunded to your original payment method.
               </p>
             </div>
             <div className="flex space-x-3 pt-2">

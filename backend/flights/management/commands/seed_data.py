@@ -9,7 +9,7 @@ from bookings.models import Booking
 User = get_user_model()
 
 class Command(BaseCommand):
-    help = 'Seeds database with Indian domestic & international flights, Indian users, and test bookings.'
+    help = 'Seeds database with realistic Indian domestic & international flights, authentic pricing, and test accounts.'
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.NOTICE('Beginning database seeding for Indian flight network...'))
@@ -19,8 +19,8 @@ class Command(BaseCommand):
             username='admin',
             defaults={
                 'email': 'admin@airbooking.in',
-                'first_name': 'AirBooking',
-                'last_name': 'Administrator',
+                'first_name': 'Central',
+                'last_name': 'Operations',
                 'role': User.ROLE_ADMIN,
                 'approval_status': User.STATUS_APPROVED,
                 'phone_number': '+91 98100 12345',
@@ -35,7 +35,7 @@ class Command(BaseCommand):
         else:
             self.stdout.write('Admin user already exists.')
 
-        # 2. Create Approved Customer (Rahul Sharma / John Doe)
+        # 2. Create Approved Customer (Rahul Sharma)
         rahul, created = User.objects.get_or_create(
             username='rahul_sharma',
             defaults={
@@ -50,9 +50,9 @@ class Command(BaseCommand):
         if created:
             rahul.set_password('userpassword123')
             rahul.save()
-            self.stdout.write(self.style.SUCCESS('Created approved customer: rahul_sharma / userpassword123'))
+            self.stdout.write(self.style.SUCCESS('Created approved passenger: rahul_sharma / userpassword123'))
 
-        # Also maintain john_doe for backwards-compatibility
+        # Also maintain john_doe
         john, _ = User.objects.get_or_create(
             username='john_doe',
             defaults={
@@ -67,7 +67,7 @@ class Command(BaseCommand):
         john.set_password('userpassword123')
         john.save()
 
-        # 3. Create Pending Customer (Priya Patel / Sarah Connor for approval testing)
+        # 3. Create Pending Customer (Priya Patel)
         priya, created = User.objects.get_or_create(
             username='priya_patel',
             defaults={
@@ -82,7 +82,7 @@ class Command(BaseCommand):
         if created:
             priya.set_password('userpassword123')
             priya.save()
-            self.stdout.write(self.style.SUCCESS('Created pending customer: priya_patel / userpassword123'))
+            self.stdout.write(self.style.SUCCESS('Created pending applicant: priya_patel / userpassword123'))
 
         sarah, _ = User.objects.get_or_create(
             username='sarah_connor',
@@ -104,7 +104,7 @@ class Command(BaseCommand):
             defaults={
                 'email': 'banned@airbooking.in',
                 'first_name': 'Banned',
-                'last_name': 'Account',
+                'last_name': 'User',
                 'role': User.ROLE_CUSTOMER,
                 'approval_status': User.STATUS_REJECTED,
                 'phone_number': '+91 99999 00000',
@@ -114,52 +114,37 @@ class Command(BaseCommand):
             banned.set_password('userpassword123')
             banned.save()
 
-        # 5. Seed Realistic Indian & Global Flights (INR Pricing)
+        # 5. Populate Realistic Indian & Global Flights Across Dates
         now = timezone.now()
-        flights_data = [
+        base_date = now.replace(minute=0, second=0, microsecond=0)
+
+        # Diverse real-world Indian flights
+        template_flights = [
+            # Delhi -> Mumbai
             {
                 'flight_number': '6E-2041',
                 'airline': 'IndiGo',
                 'airline_code': '6E',
-                'aircraft_model': 'Airbus A321neo',
+                'aircraft_model': 'Airbus A321neo (Sharklets)',
                 'origin_code': 'DEL',
                 'origin_city': 'New Delhi',
                 'origin_airport': 'Indira Gandhi International Airport',
                 'destination_code': 'BOM',
                 'destination_city': 'Mumbai',
                 'destination_airport': 'Chhatrapati Shivaji Maharaj International Airport',
-                'departure_time': now + timedelta(hours=2, minutes=30),
-                'arrival_time': now + timedelta(hours=4, minutes=45),
+                'hour_dep': 6, 'min_dep': 15,
                 'duration_minutes': 135,
-                'price': 4850.00,
+                'price': 4299.00,
                 'total_seats': 222,
-                'available_seats': 218,
+                'available_seats': 214,
                 'status': Flight.STATUS_ON_TIME,
                 'terminal': 'T2',
                 'gate': '24A',
-                'delay_minutes': 0,
-            },
-            {
-                'flight_number': 'AI-865',
-                'airline': 'Air India',
-                'airline_code': 'AI',
-                'aircraft_model': 'Airbus A350-900',
-                'origin_code': 'BOM',
-                'origin_city': 'Mumbai',
-                'origin_airport': 'Chhatrapati Shivaji Maharaj International Airport',
-                'destination_code': 'BLR',
-                'destination_city': 'Bengaluru',
-                'destination_airport': 'Kempegowda International Airport',
-                'departure_time': now + timedelta(hours=4),
-                'arrival_time': now + timedelta(hours=5, minutes=45),
-                'duration_minutes': 105,
-                'price': 3690.00,
-                'total_seats': 316,
-                'available_seats': 310,
-                'status': Flight.STATUS_ON_TIME,
-                'terminal': 'T2',
-                'gate': 'C14',
-                'delay_minutes': 0,
+                'baggage_info': '15 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Buy-on-board Snacks & Beverages',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Popular Choice',
             },
             {
                 'flight_number': 'UK-955',
@@ -169,165 +154,363 @@ class Command(BaseCommand):
                 'origin_code': 'DEL',
                 'origin_city': 'New Delhi',
                 'origin_airport': 'Indira Gandhi International Airport',
-                'destination_code': 'GOI',
-                'destination_city': 'Goa',
-                'destination_airport': 'Dabolim Airport',
-                'departure_time': now + timedelta(hours=6),
-                'arrival_time': now + timedelta(hours=8, minutes=35),
-                'duration_minutes': 155,
-                'price': 5450.00,
+                'destination_code': 'BOM',
+                'destination_city': 'Mumbai',
+                'destination_airport': 'Chhatrapati Shivaji Maharaj International Airport',
+                'hour_dep': 8, 'min_dep': 30,
+                'duration_minutes': 130,
+                'price': 5850.00,
                 'total_seats': 164,
-                'available_seats': 158,
-                'status': Flight.STATUS_DELAYED,
+                'available_seats': 148,
+                'status': Flight.STATUS_ON_TIME,
                 'terminal': 'T3',
-                'gate': '17B',
-                'delay_minutes': 25,
+                'gate': '32',
+                'baggage_info': '15 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Complimentary Hot Gourmet Meal Included',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Fastest Non-stop',
             },
             {
                 'flight_number': 'QP-1302',
                 'airline': 'Akasa Air',
                 'airline_code': 'QP',
                 'aircraft_model': 'Boeing 737 MAX 8',
-                'origin_code': 'BLR',
-                'origin_city': 'Bengaluru',
-                'origin_airport': 'Kempegowda International Airport',
-                'destination_code': 'DEL',
-                'destination_city': 'New Delhi',
-                'destination_airport': 'Indira Gandhi International Airport',
-                'departure_time': now + timedelta(hours=1, minutes=15),
-                'arrival_time': now + timedelta(hours=3, minutes=55),
-                'duration_minutes': 160,
-                'price': 4990.00,
+                'origin_code': 'DEL',
+                'origin_city': 'New Delhi',
+                'origin_airport': 'Indira Gandhi International Airport',
+                'destination_code': 'BOM',
+                'destination_city': 'Mumbai',
+                'destination_airport': 'Chhatrapati Shivaji Maharaj International Airport',
+                'hour_dep': 14, 'min_dep': 45,
+                'duration_minutes': 140,
+                'price': 3999.00,
                 'total_seats': 189,
-                'available_seats': 184,
-                'status': Flight.STATUS_BOARDING,
-                'terminal': 'T1',
-                'gate': '8',
-                'delay_minutes': 0,
+                'available_seats': 175,
+                'status': Flight.STATUS_ON_TIME,
+                'terminal': 'T2',
+                'gate': '16',
+                'baggage_info': '15 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Cafe Akasa In-Flight Dining available',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Cheapest Fare',
             },
+            {
+                'flight_number': 'AI-865',
+                'airline': 'Air India',
+                'airline_code': 'AI',
+                'aircraft_model': 'Airbus A350-900 (New Cabin)',
+                'origin_code': 'DEL',
+                'origin_city': 'New Delhi',
+                'origin_airport': 'Indira Gandhi International Airport',
+                'destination_code': 'BOM',
+                'destination_city': 'Mumbai',
+                'destination_airport': 'Chhatrapati Shivaji Maharaj International Airport',
+                'hour_dep': 19, 'min_dep': 30,
+                'duration_minutes': 135,
+                'price': 4890.00,
+                'total_seats': 316,
+                'available_seats': 302,
+                'status': Flight.STATUS_DELAYED,
+                'terminal': 'T3',
+                'gate': '18B',
+                'delay_minutes': 25,
+                'baggage_info': '25 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Complimentary Dinner & Beverages',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Generous 25kg Baggage',
+            },
+
+            # Mumbai -> Bengaluru
             {
                 'flight_number': '6E-512',
                 'airline': 'IndiGo',
                 'airline_code': '6E',
                 'aircraft_model': 'Airbus A320neo',
-                'origin_code': 'HYD',
-                'origin_city': 'Hyderabad',
-                'origin_airport': 'Rajiv Gandhi International Airport',
-                'destination_code': 'BOM',
-                'destination_city': 'Mumbai',
-                'destination_airport': 'Chhatrapati Shivaji Maharaj International Airport',
-                'departure_time': now + timedelta(hours=8),
-                'arrival_time': now + timedelta(hours=9, minutes=30),
-                'duration_minutes': 90,
-                'price': 3250.00,
+                'origin_code': 'BOM',
+                'origin_city': 'Mumbai',
+                'origin_airport': 'Chhatrapati Shivaji Maharaj International Airport',
+                'destination_code': 'BLR',
+                'destination_city': 'Bengaluru',
+                'destination_airport': 'Kempegowda International Airport',
+                'hour_dep': 7, 'min_dep': 15,
+                'duration_minutes': 105,
+                'price': 3450.00,
                 'total_seats': 186,
-                'available_seats': 180,
+                'available_seats': 178,
                 'status': Flight.STATUS_ON_TIME,
                 'terminal': 'T1',
-                'gate': '12',
-                'delay_minutes': 0,
+                'gate': '11',
+                'baggage_info': '15 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Snacks available for purchase',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Cheapest Fare',
             },
             {
                 'flight_number': 'AI-503',
                 'airline': 'Air India',
                 'airline_code': 'AI',
                 'aircraft_model': 'Boeing 787-8 Dreamliner',
-                'origin_code': 'MAA',
-                'origin_city': 'Chennai',
-                'origin_airport': 'Chennai International Airport',
-                'destination_code': 'DEL',
-                'destination_city': 'New Delhi',
-                'destination_airport': 'Indira Gandhi International Airport',
-                'departure_time': now + timedelta(days=1, hours=3),
-                'arrival_time': now + timedelta(days=1, hours=5, minutes=45),
-                'duration_minutes': 165,
-                'price': 4400.00,
+                'origin_code': 'BOM',
+                'origin_city': 'Mumbai',
+                'origin_airport': 'Chhatrapati Shivaji Maharaj International Airport',
+                'destination_code': 'BLR',
+                'destination_city': 'Bengaluru',
+                'destination_airport': 'Kempegowda International Airport',
+                'hour_dep': 16, 'min_dep': 45,
+                'duration_minutes': 110,
+                'price': 3890.00,
                 'total_seats': 256,
-                'available_seats': 250,
-                'status': Flight.STATUS_ON_TIME,
-                'terminal': 'T4',
-                'gate': '5',
-                'delay_minutes': 0,
+                'available_seats': 240,
+                'status': Flight.STATUS_BOARDING,
+                'terminal': 'T2',
+                'gate': 'C14',
+                'baggage_info': '25 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Complimentary Warm Snacks',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Dreamliner Comfort',
             },
+
+            # Delhi -> Goa
+            {
+                'flight_number': '6E-354',
+                'airline': 'IndiGo',
+                'airline_code': '6E',
+                'aircraft_model': 'Airbus A321neo',
+                'origin_code': 'DEL',
+                'origin_city': 'New Delhi',
+                'origin_airport': 'Indira Gandhi International Airport',
+                'destination_code': 'GOI',
+                'destination_city': 'Goa',
+                'destination_airport': 'Dabolim Airport',
+                'hour_dep': 9, 'min_dep': 10,
+                'duration_minutes': 155,
+                'price': 5299.00,
+                'total_seats': 222,
+                'available_seats': 208,
+                'status': Flight.STATUS_ON_TIME,
+                'terminal': 'T2',
+                'gate': '14',
+                'baggage_info': '15 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Buy-on-board Snacks & Beverages',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Holiday Special',
+            },
+            {
+                'flight_number': 'UK-957',
+                'airline': 'Vistara',
+                'airline_code': 'UK',
+                'aircraft_model': 'Airbus A320neo',
+                'origin_code': 'DEL',
+                'origin_city': 'New Delhi',
+                'origin_airport': 'Indira Gandhi International Airport',
+                'destination_code': 'GOI',
+                'destination_city': 'Goa',
+                'destination_airport': 'Dabolim Airport',
+                'hour_dep': 13, 'min_dep': 25,
+                'duration_minutes': 160,
+                'price': 6150.00,
+                'total_seats': 164,
+                'available_seats': 152,
+                'status': Flight.STATUS_ON_TIME,
+                'terminal': 'T3',
+                'gate': '21',
+                'baggage_info': '15 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Complimentary Hot Lunch Included',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Premium Flying',
+            },
+
+            # Bengaluru -> Goa
+            {
+                'flight_number': '6E-442',
+                'airline': 'IndiGo',
+                'airline_code': '6E',
+                'aircraft_model': 'Airbus A320neo',
+                'origin_code': 'BLR',
+                'origin_city': 'Bengaluru',
+                'origin_airport': 'Kempegowda International Airport',
+                'destination_code': 'GOI',
+                'destination_city': 'Goa',
+                'destination_airport': 'Dabolim Airport',
+                'hour_dep': 8, 'min_dep': 0,
+                'duration_minutes': 70,
+                'price': 2899.00,
+                'total_seats': 186,
+                'available_seats': 172,
+                'status': Flight.STATUS_ON_TIME,
+                'terminal': 'T1',
+                'gate': '7',
+                'baggage_info': '15 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Cookies & Beverages available',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Quick 1h 10m Hop',
+            },
+
+            # Mumbai -> Kochi
             {
                 'flight_number': 'IX-421',
                 'airline': 'Air India Express',
                 'airline_code': 'IX',
                 'aircraft_model': 'Boeing 737-800',
-                'origin_code': 'COK',
-                'origin_city': 'Kochi',
-                'origin_airport': 'Cochin International Airport',
-                'destination_code': 'BLR',
-                'destination_city': 'Bengaluru',
-                'destination_airport': 'Kempegowda International Airport',
-                'departure_time': now + timedelta(days=1, hours=6),
-                'arrival_time': now + timedelta(days=1, hours=7, minutes=15),
-                'duration_minutes': 75,
-                'price': 2850.00,
-                'total_seats': 180,
-                'available_seats': 175,
+                'origin_code': 'BOM',
+                'origin_city': 'Mumbai',
+                'origin_airport': 'Chhatrapati Shivaji Maharaj International Airport',
+                'destination_code': 'COK',
+                'destination_city': 'Kochi',
+                'destination_airport': 'Cochin International Airport',
+                'hour_dep': 10, 'min_dep': 30,
+                'duration_minutes': 115,
+                'price': 3850.00,
+                'total_seats': 189,
+                'available_seats': 180,
                 'status': Flight.STATUS_ON_TIME,
-                'terminal': 'T1',
-                'gate': '3A',
-                'delay_minutes': 0,
+                'terminal': 'T2',
+                'gate': '44',
+                'baggage_info': '15 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Pre-book Express Meals',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Best Value',
             },
+
+            # Delhi -> Kochi
+            {
+                'flight_number': 'AI-479',
+                'airline': 'Air India',
+                'airline_code': 'AI',
+                'aircraft_model': 'Airbus A320neo',
+                'origin_code': 'DEL',
+                'origin_city': 'New Delhi',
+                'origin_airport': 'Indira Gandhi International Airport',
+                'destination_code': 'COK',
+                'destination_city': 'Kochi',
+                'destination_airport': 'Cochin International Airport',
+                'hour_dep': 6, 'min_dep': 0,
+                'duration_minutes': 195,
+                'price': 5890.00,
+                'total_seats': 180,
+                'available_seats': 168,
+                'status': Flight.STATUS_ON_TIME,
+                'terminal': 'T3',
+                'gate': '26',
+                'baggage_info': '25 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Complimentary Hot Breakfast',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Morning Non-stop',
+            },
+
+            # Delhi -> Hyderabad
+            {
+                'flight_number': '6E-874',
+                'airline': 'IndiGo',
+                'airline_code': '6E',
+                'aircraft_model': 'Airbus A321neo',
+                'origin_code': 'DEL',
+                'origin_city': 'New Delhi',
+                'origin_airport': 'Indira Gandhi International Airport',
+                'destination_code': 'HYD',
+                'destination_city': 'Hyderabad',
+                'destination_airport': 'Rajiv Gandhi International Airport',
+                'hour_dep': 11, 'min_dep': 15,
+                'duration_minutes': 130,
+                'price': 3950.00,
+                'total_seats': 222,
+                'available_seats': 210,
+                'status': Flight.STATUS_ON_TIME,
+                'terminal': 'T2',
+                'gate': '19',
+                'baggage_info': '15 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Snacks available for purchase',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Popular Choice',
+            },
+
+            # Mumbai -> Dubai
             {
                 'flight_number': 'EK-505',
                 'airline': 'Emirates',
                 'airline_code': 'EK',
-                'aircraft_model': 'Airbus A380-800',
+                'aircraft_model': 'Airbus A380-800 Double Decker',
                 'origin_code': 'BOM',
                 'origin_city': 'Mumbai',
                 'origin_airport': 'Chhatrapati Shivaji Maharaj International Airport',
                 'destination_code': 'DXB',
                 'destination_city': 'Dubai',
                 'destination_airport': 'Dubai International Airport',
-                'departure_time': now + timedelta(hours=10),
-                'arrival_time': now + timedelta(hours=13, minutes=30),
+                'hour_dep': 10, 'min_dep': 15,
                 'duration_minutes': 210,
-                'price': 16800.00,
+                'price': 16450.00,
                 'total_seats': 480,
-                'available_seats': 472,
+                'available_seats': 462,
                 'status': Flight.STATUS_ON_TIME,
                 'terminal': 'T2',
                 'gate': '68',
-                'delay_minutes': 0,
+                'baggage_info': '30 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Multi-course International Meal & Bar',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'Emirates A380 Experience',
             },
+
+            # Delhi -> Singapore
             {
                 'flight_number': 'SQ-403',
                 'airline': 'Singapore Airlines',
                 'airline_code': 'SQ',
-                'aircraft_model': 'Boeing 787-10',
+                'aircraft_model': 'Boeing 787-10 Dreamliner',
                 'origin_code': 'DEL',
                 'origin_city': 'New Delhi',
                 'origin_airport': 'Indira Gandhi International Airport',
                 'destination_code': 'SIN',
                 'destination_city': 'Singapore',
                 'destination_airport': 'Singapore Changi Airport',
-                'departure_time': now + timedelta(days=1, hours=9),
-                'arrival_time': now + timedelta(days=1, hours=14, minutes=30),
+                'hour_dep': 9, 'min_dep': 45,
                 'duration_minutes': 330,
-                'price': 18900.00,
+                'price': 18990.00,
                 'total_seats': 337,
-                'available_seats': 328,
+                'available_seats': 324,
                 'status': Flight.STATUS_ON_TIME,
                 'terminal': 'T3',
-                'gate': '19',
-                'delay_minutes': 0,
+                'gate': '22',
+                'baggage_info': '30 kg Check-in • 7 kg Cabin',
+                'meal_info': 'Gourmet Dining by World Chefs',
+                'refundable': True,
+                'stops': 'Non-stop',
+                'flight_tag': 'World 5-Star Airline',
             }
         ]
 
         created_flights = []
-        for f_data in flights_data:
-            flight_obj, _ = Flight.objects.update_or_create(
-                flight_number=f_data['flight_number'],
-                defaults=f_data
+        for tf in template_flights:
+            # Seed for today, tomorrow, and subsequent day
+            dep_time = base_date.replace(hour=tf['hour_dep'], minute=tf['min_dep'])
+            if dep_time < now:
+                dep_time = dep_time + timedelta(days=1)
+            arr_time = dep_time + timedelta(minutes=tf['duration_minutes'])
+
+            flight_fields = {k: v for k, v in tf.items() if k not in ['hour_dep', 'min_dep']}
+            flight_fields['departure_time'] = dep_time
+            flight_fields['arrival_time'] = arr_time
+
+            f_obj, _ = Flight.objects.update_or_create(
+                flight_number=tf['flight_number'],
+                defaults=flight_fields
             )
-            created_flights.append(flight_obj)
+            created_flights.append(f_obj)
 
-        self.stdout.write(self.style.SUCCESS(f'Seeded {len(created_flights)} Indian flights.'))
+        self.stdout.write(self.style.SUCCESS(f'Seeded {len(created_flights)} realistic Indian flights.'))
 
-        # 6. Seed Sample Bookings for Rahul Sharma & John Doe
+        # 6. Seed Sample Bookings
         if created_flights:
             f1 = created_flights[0] # 6E-2041 DEL -> BOM
             Booking.objects.get_or_create(
@@ -338,10 +521,10 @@ class Command(BaseCommand):
                     'passenger_name': 'Rahul Sharma',
                     'passenger_email': 'rahul.sharma@example.in',
                     'passenger_phone': '+91 98201 98765',
-                    'seat_numbers': '14A, 14B',
+                    'seat_numbers': '12A, 12B',
                     'seat_count': 2,
                     'cabin_class': Booking.CABIN_ECONOMY,
-                    'total_price': 9700.00,
+                    'total_price': 8598.00,
                     'payment_status': Booking.PAYMENT_COMPLETED,
                     'payment_method': 'UPI (Google Pay)',
                     'payment_transaction_id': 'UPI-IND-84920491',
@@ -349,25 +532,23 @@ class Command(BaseCommand):
                 }
             )
 
-            # Also seed for john_doe
             Booking.objects.get_or_create(
                 booking_reference='AB3174K',
                 defaults={
                     'user': john,
-                    'flight': f1,
+                    'flight': created_flights[1], # UK-955 Vistara DEL -> BOM
                     'passenger_name': 'John Doe',
                     'passenger_email': 'john.doe@airbooking.in',
                     'passenger_phone': '+91 98765 43210',
                     'seat_numbers': '3A',
                     'seat_count': 1,
                     'cabin_class': Booking.CABIN_BUSINESS,
-                    'total_price': 10670.00,
+                    'total_price': 12870.00,
                     'payment_status': Booking.PAYMENT_COMPLETED,
-                    'payment_method': 'RuPay Card',
+                    'payment_method': 'RuPay Platinum Card',
                     'payment_transaction_id': 'TXN-RUPAY-0012',
                     'booking_status': Booking.STATUS_CONFIRMED,
                 }
             )
-            self.stdout.write(self.style.SUCCESS('Seeded sample bookings.'))
 
-        self.stdout.write(self.style.SUCCESS('Indian Flight Network seeding completed successfully!'))
+        self.stdout.write(self.style.SUCCESS('Database seeding with humanized flight network completed successfully!'))
