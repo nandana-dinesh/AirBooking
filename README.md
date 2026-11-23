@@ -136,7 +136,10 @@ All screenshots below represent the actual running application and are located i
 
 ## 🎥 Working Demonstration Video
 
-> **Demo Video Link:** `[VIDEO_URL_PLACEHOLDER]` *(Paste your Loom, Google Drive, or YouTube unlisted demonstration link here)*
+> 📹 **Repository Video File:** An automated 720p HD demonstration walkthrough is recorded and included directly in this repository:
+> 👉 **[`docs/demo_video/airbooking_demo_walkthrough.webm`](docs/demo_video/airbooking_demo_walkthrough.webm)** *(Can be played directly in any browser or media player)*
+>
+> 🌐 **Online Stream Link (Optional):** `[VIDEO_URL_PLACEHOLDER]` *(If hosted on Loom, Google Drive, or YouTube, paste the streaming URL here)*
 
 ### Recommended Walkthrough Sequence (2 Minutes):
 1. **User Registration & Approval Workflow (0:00 - 0:30):**
