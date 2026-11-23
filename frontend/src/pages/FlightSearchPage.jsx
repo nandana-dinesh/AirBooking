@@ -169,6 +169,7 @@ export const FlightSearchPage = () => {
         card_number: paymentDetails.card_number,
         card_expiry: paymentDetails.card_expiry,
         card_cvv: paymentDetails.card_cvv,
+        payment_method: paymentDetails.payment_method,
       };
 
       const res = await api.post('/bookings/', payload);

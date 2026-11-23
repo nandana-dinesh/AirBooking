@@ -19,7 +19,7 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'flight_id', 'passenger_name', 'passenger_email',
             'passenger_phone', 'seat_numbers', 'seat_count', 'cabin_class',
-            'card_number', 'card_expiry', 'card_cvv',
+            'card_number', 'card_expiry', 'card_cvv', 'payment_method',
             'booking_reference', 'total_price', 'payment_status',
             'booking_status', 'created_at'
         ]
@@ -74,6 +74,7 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         validated_data.pop('card_number', None)
         validated_data.pop('card_expiry', None)
         validated_data.pop('card_cvv', None)
+        payment_method_value = validated_data.pop('payment_method', 'UPI Payment (Simulated)')
 
         seat_count = validated_data.get('seat_count', 1)
         cabin_class = validated_data.get('cabin_class', Booking.CABIN_ECONOMY)
@@ -91,8 +92,29 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         # Transaction to safely decrement available seats
         with transaction.atomic():
             flight = Flight.objects.select_for_update().get(id=flight.id)
+
+            # Definitive seat availability check inside the lock
             if flight.available_seats < seat_count:
                 raise serializers.ValidationError({"error": "Seats no longer available."})
+
+            # Definitive seat conflict check inside the lock
+            seat_numbers_str = validated_data.get('seat_numbers', '')
+            if seat_numbers_str:
+                requested_seats = [s.strip().upper() for s in seat_numbers_str.split(',') if s.strip()]
+                existing_bookings = Booking.objects.filter(
+                    flight=flight,
+                    booking_status=Booking.STATUS_CONFIRMED
+                ).select_for_update()
+                occupied_seats = set()
+                for b in existing_bookings:
+                    if b.seat_numbers:
+                        for s in b.seat_numbers.split(','):
+                            occupied_seats.add(s.strip().upper())
+                for seat in requested_seats:
+                    if seat in occupied_seats:
+                        raise serializers.ValidationError({
+                            "seat_numbers": f"Seat {seat} has already been reserved by another passenger. Please select another seat."
+                        })
 
             flight.available_seats -= seat_count
             flight.save(update_fields=['available_seats'])
@@ -103,7 +125,7 @@ class BookingCreateSerializer(serializers.ModelSerializer):
                 flight=flight,
                 total_price=total_price,
                 payment_status=Booking.PAYMENT_COMPLETED,
-                payment_method='Credit Card (Simulated)',
+                payment_method=payment_method_value,
                 payment_transaction_id=simulated_tx_id,
                 booking_status=Booking.STATUS_CONFIRMED,
                 **validated_data
