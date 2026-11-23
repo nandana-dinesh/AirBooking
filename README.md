@@ -217,7 +217,32 @@ python -c "import secrets; print(secrets.token_hex(50))"
 
 Copy the output and paste it as `SECRET_KEY=...` in your `.env` file.
 
-### 5. Run database migrations
+### 5. Configure the database
+
+#### Option A — SQLite (easiest, local development only)
+Leave `DATABASE_URL` empty in your `.env`. Django will automatically use `db.sqlite3`.
+
+> ⚠️ SQLite does **not** support true row-level locking. Two users booking the same seat simultaneously may not be blocked properly. Use PostgreSQL for any real deployment.
+
+#### Option B — PostgreSQL (recommended for production)
+
+**Step 1:** Install PostgreSQL from https://www.postgresql.org/download/
+
+**Step 2:** Open the PostgreSQL shell (`psql`) and create a database:
+
+```sql
+CREATE USER airbooking_user WITH PASSWORD 'yourpassword';
+CREATE DATABASE airbooking OWNER airbooking_user;
+GRANT ALL PRIVILEGES ON DATABASE airbooking TO airbooking_user;
+```
+
+**Step 3:** Set `DATABASE_URL` in `backend/.env`:
+
+```
+DATABASE_URL=postgresql://airbooking_user:yourpassword@localhost:5432/airbooking
+```
+
+### 6. Run database migrations
 
 ```bash
 # From the backend/ directory, with venv active
@@ -288,6 +313,7 @@ Create `backend/.env` by copying `backend/.env.example`. The table below explain
 | `DEBUG` | No | `True` | Set `False` in production to hide error details |
 | `ALLOWED_HOSTS` | No | `localhost,127.0.0.1` | Comma-separated hostnames Django will serve (e.g. `mysite.com,www.mysite.com`) |
 | `CORS_ALLOWED_ORIGINS` | No | `http://localhost:5173,http://127.0.0.1:5173` | Comma-separated frontend origins allowed to call the API |
+| `DATABASE_URL` | No | _(SQLite fallback)_ | PostgreSQL connection URL: `postgresql://USER:PASSWORD@HOST:5432/DB`. Leave blank to use SQLite. |
 | `EMAIL_BACKEND` | No | Console backend | Use `django.core.mail.backends.smtp.EmailBackend` with SMTP settings for real email |
 | `CELERY_BROKER_URL` | No | `redis://127.0.0.1:6379/0` | Redis URL for background task queue |
 | `CELERY_RESULT_BACKEND` | No | `redis://127.0.0.1:6379/0` | Redis URL for Celery result storage |
@@ -451,10 +477,13 @@ The live telemetry feature uses the [OpenSky Network](https://opensky-network.or
 
 ---
 
-### 🗄️ SQLite and Concurrency
-This project uses SQLite for the database. SQLite does **not** support true row-level locking. The `select_for_update()` call in the booking serializer is used for correctness on databases that do support it (e.g. PostgreSQL), but on SQLite it falls back to table-level locking.
+### 🗄️ Database and Concurrency
+This project supports both **SQLite** (default, local dev) and **PostgreSQL** (recommended for production).
 
-For a production deployment, switch to **PostgreSQL** for proper concurrent seat reservation handling.
+- **SQLite**: Does NOT support true row-level locking. `select_for_update()` falls back to table-level locking. Suitable only for single-developer local testing.
+- **PostgreSQL**: Fully supports row-level locking via `select_for_update()`. Two users cannot book the same seat simultaneously. Use this for any shared or deployed environment.
+
+Set `DATABASE_URL=postgresql://...` in `backend/.env` to switch to PostgreSQL (see [Backend Setup](#backend-setup)).
 
 ---
 
