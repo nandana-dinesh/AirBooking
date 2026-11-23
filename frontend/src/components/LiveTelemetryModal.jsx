@@ -167,17 +167,22 @@ export const LiveTelemetryModal = ({ isOpen, onClose, flightId }) => {
               </div>
             </div>
 
-            {/* Live GPS Coordinates & OpenSky Network Status */}
+            {/* GPS Coordinates & Data Source Label */}
             <div className="bg-slate-900/40 border border-slate-800/80 rounded-xl p-3 text-xs flex flex-col sm:flex-row items-center justify-between text-slate-400 gap-2">
               <div className="font-mono">
                 Lat: <span className="text-slate-200">{data.telemetry.latitude}°</span>, Lon:{' '}
                 <span className="text-slate-200">{data.telemetry.longitude}°</span>
               </div>
-              <div className="flex items-center space-x-1.5 text-emerald-400 text-[11px] font-medium">
+              <div className={`flex items-center space-x-1.5 text-[11px] font-medium ${data.data_source === 'live' ? 'text-emerald-400' : 'text-amber-400'}`}>
                 <Radio className="w-3 h-3 animate-pulse" />
-                <span>Source: OpenSky Network Live ADS-B Feed</span>
+                <span>{data.data_source_label || (data.data_source === 'live' ? 'Live ADS-B — OpenSky Network' : 'Estimated from flight schedule')}</span>
               </div>
             </div>
+            {data.data_source !== 'live' && data.opensky_note && (
+              <div className="text-[10px] text-amber-500/70 text-center mt-1 px-2">
+                ⚠️ {data.opensky_note}
+              </div>
+            )}
           </div>
         ) : null}
       </div>

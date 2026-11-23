@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { X, CreditCard, Lock, ShieldCheck, CheckCircle2, Loader2, Plane, Smartphone, Building2 } from 'lucide-react';
 
 export const PaymentModal = ({
@@ -57,7 +57,7 @@ export const PaymentModal = ({
             </div>
             <div>
               <h3 className="font-bold text-base">AirBooking India Secure Gateway</h3>
-              <p className="text-xs text-slate-400">100% Safe & Encrypted (UPI / RuPay / Cards)</p>
+              <p className="text-xs text-slate-400">?? Demo Simulation � No real payment is processed</p>
             </div>
           </div>
           {stage !== 'processing' && (
@@ -80,6 +80,11 @@ export const PaymentModal = ({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            {/* Demo Warning Banner */}
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 text-xs text-amber-800 font-medium flex items-center gap-2">
+              <span>⚠️</span>
+              <span>This is a <strong>demo simulation</strong>. No real money is charged. Any card/UPI data entered here is for demonstration only and is not stored or processed.</span>
+            </div>
             {/* Summary Banner */}
             <div className="bg-sky-50 border border-sky-100 rounded-2xl p-4 flex items-center justify-between">
               <div>

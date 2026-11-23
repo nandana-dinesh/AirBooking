@@ -1,14 +1,19 @@
 import os
+import urllib.parse
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'REDACTED_SECRET_KEY'
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / '.env')
 
-DEBUG = True
+SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-only-insecure-fallback-key-change-in-production')
 
-ALLOWED_HOSTS = ['*']
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -62,12 +67,47 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Database configuration
+# ----------------------------------------------------------------------------
+# Set DATABASE_URL in .env to use PostgreSQL (recommended for production).
+# If DATABASE_URL is not set, falls back to SQLite for local development.
+#
+# PostgreSQL example:
+#   DATABASE_URL=postgresql://myuser:mypassword@localhost:5432/airbooking
+#
+# SQLite (default, development only):
+#   Leave DATABASE_URL unset or empty.
+# ----------------------------------------------------------------------------
+
+_DATABASE_URL = os.environ.get('DATABASE_URL', '')
+
+if _DATABASE_URL:
+    # Parse the DATABASE_URL and configure PostgreSQL
+    _parsed = urllib.parse.urlparse(_DATABASE_URL)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': _parsed.path.lstrip('/'),
+            'USER': _parsed.username,
+            'PASSWORD': _parsed.password,
+            'HOST': _parsed.hostname,
+            'PORT': str(_parsed.port or 5432),
+            'OPTIONS': {
+                # Keeps transactions honest; select_for_update() works properly
+                'connect_timeout': 10,
+            },
+            'CONN_MAX_AGE': 60,  # Reuse DB connections for 60 seconds
+        }
     }
-}
+else:
+    # SQLite fallback — good for local dev, NOT suitable for production
+    # Note: select_for_update() does NOT provide true row-level locking in SQLite.
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -82,10 +122,14 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS configuration
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:5173,http://127.0.0.1:5173'
+).split(',')
 CORS_ALLOW_CREDENTIALS = True
 
 # REST Framework settings
